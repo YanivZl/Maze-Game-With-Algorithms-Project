@@ -1,7 +1,5 @@
 #pragma once
 
-#ifndef UNTITLED1_COMMAND_H
-#define UNTITLED1_COMMAND_H
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -42,8 +40,8 @@ typedef std::vector<Node<Position>*> Solution;
 class Command {
 public:
     virtual int run(std::vector<std::string> args) = 0;
-//protected:
-//    std::vector<std::pair<std::string, Maze2D >> Mymazes;
+    //protected:
+    //    std::vector<std::pair<std::string, Maze2D >> Mymazes;
 };
 /*------------------------------------------------------------------------*/
 class dirCommand : public Command
@@ -68,20 +66,20 @@ public:
 class generateCommand : public Command
 {
 public:
-    generateCommand(){}
+    generateCommand() {}
     int run(std::vector<std::string> args)
     {
         Maze2D Maze;
         Maze2DGenerator* Gen;
         if (args[2] == "prim")
             Gen = new MyMaze2dGenerator();
-            //Generator = new SimpleMaze2dGenerator();
+        //Generator = new SimpleMaze2dGenerator();
         else if (args[2] == "random")
             return 1;//change this in the next line when you have SimpleMaze2dGenerator
         else
             return 1;
-        Maze = Gen->genarate(std::stoi(args[3]) , std::stoi(args[4]));
-        std::cout <<std::endl<< Maze;
+        Maze = Gen->genarate(std::stoi(args[3]), std::stoi(args[4]));
+        std::cout << std::endl << Maze;
         Mymazes.push_back(std::make_pair(args[1], Maze));
         Sleep(100);
         return 1;
@@ -115,29 +113,27 @@ public:
     saveCommand() {}
     int run(std::vector<std::string> args)
     {
-       /* Maze2D Maze;
-        std::string mazeName = args[1];
-        std::string fileName = args[2];
-        int answer = 0;
-
-        std::vector<std::pair<std::string, Maze2D >> mazes = Mymazes;
-        for (std::vector<std::pair<std::string, Maze2D >>::const_iterator iter = Mymazes.begin(); iter != Mymazes.end(); iter++)
-        {
-            if (iter->first == mazeName)
-            {
-                Maze = iter->second;
-                answer = 1;
-            }
-        }
-        if (answer == 0)
-        {
-            std::cout << BOLDRED << "The Maze " << BOLDCYAN << mazeName << BOLDRED << " Not exist" << BOLDWHITE << endl;
-            return 1;
-        }
-        MazeCompressaiton Save(mazeName, fileName, Maze);
-        Save.Compress();
-
-        return 1;*/
+        /* Maze2D Maze;
+         std::string mazeName = args[1];
+         std::string fileName = args[2];
+         int answer = 0;
+         std::vector<std::pair<std::string, Maze2D >> mazes = Mymazes;
+         for (std::vector<std::pair<std::string, Maze2D >>::const_iterator iter = Mymazes.begin(); iter != Mymazes.end(); iter++)
+         {
+             if (iter->first == mazeName)
+             {
+                 Maze = iter->second;
+                 answer = 1;
+             }
+         }
+         if (answer == 0)
+         {
+             std::cout << BOLDRED << "The Maze " << BOLDCYAN << mazeName << BOLDRED << " Not exist" << BOLDWHITE << endl;
+             return 1;
+         }
+         MazeCompressaiton Save(mazeName, fileName, Maze);
+         Save.Compress();
+         return 1;*/
         return 1;
     }
 };
@@ -152,7 +148,6 @@ public:
         std::string mazeName = args[2];
         std::string fileName = args[1];
         int answer = 0;
-
         std::vector<std::pair<std::string, Maze2d >> mazes = Mymazes;
         for (std::vector<std::pair<std::string, Maze2d >>::const_iterator iter = Mymazes.begin(); iter != Mymazes.end(); iter++)
         {
@@ -213,29 +208,29 @@ public:
     fsizeCommand() {}
     int run(std::vector<std::string> args)
     {
-            //Maze2d Maze;
-            //std::string mazeName = args[2];
-            //std::string fileName = args[1];
-            //int answer = 0;
+        //Maze2d Maze;
+        //std::string mazeName = args[2];
+        //std::string fileName = args[1];
+        //int answer = 0;
 
-            //std::vector<std::pair<std::string, Maze2d >> mazes = Mymazes;
-            //for (std::vector<std::pair<std::string, Maze2d >>::const_iterator iter = Mymazes.begin(); iter != Mymazes.end(); iter++)
-            //{
-            //    if (iter->first == mazeName)
-            //    {
-            //        Maze = iter->second;
-            //        answer = 1;
-            //    }
-            //}
-            //if (answer == 0)
-            //{
-            //    cout << BOLDRED << "The Maze " << BOLDCYAN << mazeName << BOLDRED << " Not exist" << BOLDWHITE << endl;
-            //    return 1;
-            //}
-            //MazeCompressaiton Size(mazeName, fileName, Maze);
-            //Size.getCompressedSize();
+        //std::vector<std::pair<std::string, Maze2d >> mazes = Mymazes;
+        //for (std::vector<std::pair<std::string, Maze2d >>::const_iterator iter = Mymazes.begin(); iter != Mymazes.end(); iter++)
+        //{
+        //    if (iter->first == mazeName)
+        //    {
+        //        Maze = iter->second;
+        //        answer = 1;
+        //    }
+        //}
+        //if (answer == 0)
+        //{
+        //    cout << BOLDRED << "The Maze " << BOLDCYAN << mazeName << BOLDRED << " Not exist" << BOLDWHITE << endl;
+        //    return 1;
+        //}
+        //MazeCompressaiton Size(mazeName, fileName, Maze);
+        //Size.getCompressedSize();
         return 1;
-        }
+    }
 };
 /*------------------------------------------------------------------------*/
 class solveCommand : public Command
@@ -318,4 +313,3 @@ public:
 private:
 };
 /*------------------------------------------------------------------------*/
-#endif //UNTITLED1_COMMAND_H

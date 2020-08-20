@@ -1,11 +1,10 @@
+#pragma once
 #include "Astar.h"
 #include <string>
 
 template<class T>
 class AStar2D : public AStar<T>
 {
-private:
-	double fromHere(Node<T>* start, Node<T>* goal) { return NULL; };
 public:
 	double fromHere(Node<T>* start, Node<T>* goal, const char* name_of_evaluation);
 };

@@ -45,6 +45,12 @@ public:
 	virtual std::string measureAlgorithmTime(int row, int column);
 };
 
+
+class SimpleMazeGenerator : public Maze
+{
+	Maze2D genarate(int row, int column);
+};
+
 class MyMaze2dGenerator : public Maze
 {
 public:
