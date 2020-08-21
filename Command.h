@@ -73,12 +73,11 @@ public:
         Maze2DGenerator* Gen;
         if (args[2] == "prim")
             Gen = new MyMaze2dGenerator();
-        //Generator = new SimpleMaze2dGenerator();
         else if (args[2] == "random")
-            return 1;//change this in the next line when you have SimpleMaze2dGenerator
+            Gen = new SimpleMaze2dGenerator();
         else
             return 1;
-        Maze = Gen->genarate(std::stoi(args[3]), std::stoi(args[4]));
+        Maze = Gen->generate(std::stoi(args[3]), std::stoi(args[4]));
         std::cout << std::endl << Maze;
         Mymazes.push_back(std::make_pair(args[1], Maze));
         Sleep(100);

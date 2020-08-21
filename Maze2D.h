@@ -6,7 +6,8 @@
 #include <Windows.h>
 #include "Position.h"
 
-enum Arrows { Arrow = 224, Up = 72, Down = 80, Left = 75, Right = 77 };
+#define Horizonal 0
+#define Vertical 1
 
 
 class Maze2D
@@ -34,25 +35,28 @@ class Maze2DGenerator
 protected:
 	Maze2D _maze;
 public:
-	virtual Maze2D genarate(int row, int column) = 0;
+	virtual Maze2D generate(int row, int column) = 0;
 	virtual std::string measureAlgorithmTime(int row, int column) = 0;
 };
 
 class Maze : public Maze2DGenerator
 {
 public:
-	virtual Maze2D genarate(int row, int column) = 0;
+	virtual Maze2D generate(int row, int column) = 0;
 	virtual std::string measureAlgorithmTime(int row, int column);
 };
 
 
-class SimpleMazeGenerator : public Maze
+class SimpleMaze2dGenerator : public Maze
 {
-	Maze2D genarate(int row, int column);
+public:
+	Maze2D generate(int row, int column);
+private:
+	void Divide(int row_start, int row_end, int col_start, int col_end, bool direction, Maze2D& maze);
 };
 
 class MyMaze2dGenerator : public Maze
 {
 public:
-	Maze2D genarate(int row, int column);
+	Maze2D generate(int row, int column);
 };
