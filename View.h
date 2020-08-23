@@ -8,7 +8,7 @@ class view
 {
 public:
     virtual void start() = 0;
-    view(std::ostream& out, std::istream& in) :_out(out), _in(in) {};
+    view(std::ostream& out, std::istream& in) :_out(out), _in(in) , con(nullptr) {};
 protected:
     std::ostream& _out;
     std::istream& _in;

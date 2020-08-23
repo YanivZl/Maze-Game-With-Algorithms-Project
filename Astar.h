@@ -100,4 +100,5 @@ std::vector<Node<T>*> AStar<T>::search(Searchable<T>* searchable , const char* n
         }
         closedList.push_back(best);
     }
+    return std::vector<Node<T>*>();
 }

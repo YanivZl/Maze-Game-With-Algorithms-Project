@@ -7,11 +7,11 @@
 #define KEY_ENTER '\r'//Enter key charatcer
 #define RESET   "\033[0m"
 //#define RED     "\033[1m\033[31m"   
-#define GREEN   "\033[1m\033[32m"
+//#define GREEN   "\033[1m\033[32m"
 
 void MazeView::help()
 {
-
+    srand((unsigned int)time(NULL));
     std::cout << BOLDGREEN <<
         "\n\n"
         "\t\t\t _   .-')      ('-.       .-') _   ('-.    \t        _ .-') _\n"

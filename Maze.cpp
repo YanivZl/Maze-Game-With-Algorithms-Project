@@ -9,6 +9,18 @@ Maze2D::Maze2D(int row, int column)
 		_maze[i] = new char[row];
 }
 
+Maze2D::Maze2D(const Maze2D& maze)
+{
+	_height = maze._height;
+	_width = maze._width;
+	_maze = new char* [_height];
+	for (int i = 0; i < _height; i++)
+		_maze[i] = new char[_width];
+	for (int i = 0; i < _height; i++)
+		for (int j = 0; j < _width; j++)
+			_maze[i][j] = maze._maze[i][j];
+}
+
 void Maze2D::setMaze(char** maze)
 {
 	for (int i = 0; i < _height; i++)
@@ -184,6 +196,7 @@ Maze2D SimpleMaze2dGenerator::generate(int row, int column)
 		Divide(0, maze.getWidth(), 0, maze.getHeight(), Horizonal, maze);
 	Position start(0, rand() % row);
 	Position goal(maze.getWidth() - 1, rand() % row);
+	
 	temp_maze[start.getY()][start.getX()] = 'S';
 	temp_maze[goal.getY()][goal.getX()] = 'E';
 	return maze;
@@ -274,275 +287,53 @@ void SimpleMaze2dGenerator::Divide(int first_column, int last_column, int first_
 	return;
 }
 
-//Maze2D SimpleMaze2dGenerator::genarate(int row, int column)
-//{
-//	srand((unsigned int)time(NULL));
-//	Maze2D maze(row, column);
-//	char** temp_maze = maze.getMaze();
-//	for (int i = 0; i < column; i++)
-//		for (int j = 0; j < row; j++)
-//			temp_maze[i][j] = '0';
-//	//Position start(0, rand() % row);
-//	//Position end(column - 1 , rand() % row);
-//	if(row > column)
-//		Divide(0, column, 0, row, Horizonal, temp_maze);
-//	else
-//		Divide(0, column, 0, row, Vertical, temp_maze); //start by splitting vertically
-//	maze.setMaze(temp_maze);
-//	//temp_maze[start.getY()][start.getX()] = 'S';
-//	//temp_maze[end.getY()][end.getX()] = 'E';
-//	return maze;
-//}		
-//
-//void SimpleMaze2dGenerator::Divide(int first_row, int last_row, int first_column, int last_column, bool direction, char** maze)
-//{
-//	if (last_row - first_row <= 2 || last_column - first_column <= 2)
-//		return;
-//	int wall_to_break;
-//	int random_wall;
-//	int random_gap;
-//	if (direction) //Vertical
-//	{
-//		random_wall = rand() % (last_row - 2);
-//		for (int i = first_column; i < last_column; i++)
-//			maze[random_wall][i] = '1';
-//		random_gap = rand() % last_column;
-//		maze[random_wall][random_gap] = '0';
-//		Divide(first_row, random_wall, first_column, last_column, Vertical, maze);
-//		Divide(random_wall, last_row, first_column, last_column, Vertical, maze);
-//	}
-//	else
-//	{
-//		random_wall = rand() % (last_column - 2);
-//		for (int i = first_row; i < last_row; i++)
-//			maze[i][random_wall] = '1';
-//		random_gap = rand() % last_row;
-//		maze[random_gap][random_wall] = '0';
-//		Divide(first_row, last_row, first_column, random_wall, Horizonal, maze);
-//		system("CLS");
-//		for (int i = 0; i < last_row; i++)
-//		{
-//			for (int j = 0; j < last_column; j++)
-//				std::cout << maze[i][j];
-//			std::cout << std::endl;
-//		}
-//		Divide(first_row, last_row, random_wall, last_column, Horizonal, maze);
-//		system("CLS");
-//		for (int i = 0; i < last_row; i++)
-//		{
-//			for (int j = 0; j < last_column; j++)
-//				std::cout << maze[i][j];
-//			std::cout << std::endl;
-//		}
-//	}
-//	////system("CLS");
-//	////for (int i = 0; i < last_row; i++)
-//	////{
-//	////	for (int j = 0; j < last_column; j++)
-//	////		std::cout << maze[i][j];
-//	////	std::cout << std::endl;
-//	////}
-//	//if (last_row - first_row <= 2 || last_column - first_column <= 2)
-//	//	return;
-//	//int wall_to_break;
-//	//if (direction == Horizonal)
-//	//{
-//	//	// creating a vertical line of walls at a random position 
-//	//	int seperator_col;
-//	//	while (1) // get even random int from col_start to col_end
-//	//	{
-//	//		seperator_col = rand() % last_column;
-//	//		if (seperator_col % 2 == 0)
-//	//			break;
-//	//	}
-//	//	for (int i = first_row; i < last_row; i++) // insert walls line
-//	//		maze[i][seperator_col] = '1';
-//
-//	//	while (1) // breaking a random wall in the previous random line
-//	//	{
-//	//		wall_to_break = rand() % last_row;
-//	//		if (wall_to_break % 2 == 1)
-//	//		{
-//	//			maze[wall_to_break][seperator_col] = '0';
-//	//			break;
-//	//		}
-//	//	}
-//	//	
-//	//	for (int i = 0; i < last_row; i++)
-//	//	{
-//	//		for (int j = 0; j < last_column; j++)
-//	//		std::cout << maze[i][j];
-//	//	std::cout << std::endl;
-//	//	}
-//	//	std::cout << std::endl;
-//	//	//Recursively 
-//	//	Divide(first_row, last_row, first_column, seperator_col, Vertical, maze);
-//	//	//system("cls");
-//	//	//cout << maze;
-//	//	Divide(first_row, last_row, seperator_col, last_column, Vertical, maze);
-//	//	//system("cls");
-//	//	//cout << maze;
-//	//}
-//
-//	//else // Vertical Dividing
-//	//{
-//	//	// creating an Horizonal line of walls at a random position 
-//	//	int seperator_row;
-//	//	while (1) // get paired random int from col_start to col_end
-//	//	{
-//	//		seperator_row = rand() % last_row;
-//	//		if (seperator_row % 2 == 0)
-//	//			break;
-//	//	}
-//	//	for (int i = first_column; i < last_column; i++) // insert walls column
-//	//		maze[seperator_row][i] = '1';
-//
-//	//	// breaking a random wall
-//	//	while (1) // get even random int from col_start to col_end
-//	//	{
-//	//		wall_to_break = rand() % last_column;
-//	//		if (wall_to_break % 2 == 0)
-//	//		{
-//	//			maze[seperator_row][wall_to_break]= '0';
-//	//			break;
-//	//		}
-//	//	}
-//	//	for (int i = 0; i < last_row; i++)
-//	//	{
-//	//		for (int j = 0; j < last_column; j++)
-//	//			std::cout << maze[i][j];
-//	//		std::cout << std::endl;
-//	//	}
-//	//	std::cout << std::endl;
-//	//	//Recursively 
-//	//	Divide(first_row, seperator_row, first_column, last_column, Horizonal, maze);
-//	//	/*system("cls");
-//	//	cout << maze;*/
-//	//	Divide(seperator_row, last_row, first_column, last_column, Horizonal, maze);
-//	//	/*system("cls");
-//	//	cout << maze;*/
-//	//}
-//	return;
-//
-//}
 
+void Maze2D::printEmptyMaze(const Maze2D& maze) const
+{
+	for (int i = 0; i < maze._width * 2 + 2; i++)
+		std::cout << "$";
+	std::cout << std::endl;
+	for (int i = 0; i < maze._height; i++)
+	{
+		std::cout << "$";
+		for (int j = 0; j < maze._width; j++)
+		{
+			if (maze._maze[i][j] == '1')
+				std::cout << "##";
+			else if (maze._maze[i][j] == '*')
+				std::cout << "  ";
+			else if (maze._maze[i][j] == 'S')
+				std::cout << "S ";
+			else if (maze._maze[i][j] == 'E')
+				std::cout << "E ";
+			else
+				std::cout << "  ";
+		}
+		std::cout << "$" << std::endl;
+	}
+	for (int i = 0; i < maze._width * 2 + 2; i++)
+		std::cout << "$";
+	std::cout << std::endl;
+}
 
-//Maze2D SimpleMaze2dGenerator::generate(int rows, int columns)
-//{
-//
-//	Maze2D maze(rows, columns);
-//
-//	//maze.makeRandomEntryAndExit();
-//	//maze.clearWalls();
-//
-//	int col = maze.getWidth();
-//	int row = maze.getHeight();
-//
-//	if (row > col) // if there are more rows than columns 
-//		Divide(0, row, 0, col, Horizonal, maze); //start by splitting horizonally
-//	else
-//		Divide(0, row, 0, col, Vertical, maze); //start by splitting vertically
-//
-//	//maze.resetVisited();
-//	return maze;
-//}
-//
-//
-//void SimpleMaze2dGenerator::Divide(int row_start, int row_end, int col_start, int col_end, bool direction, Maze2D& maze)
-//{
-//	char** temp_maze = maze.getMaze();
-//	if (row_end - row_start <= 2 || col_end - col_start <= 2)
-//		return;
-//	int wall_to_break;
-//	if (direction == Vertical)
-//	{
-//		// creating a vertical line of walls at a random position 
-//		int seperator_col = getExclusiveRandom(col_start, col_end, 0); // get paired random int from col_start to col_end
-//		createWallsLine(row_start, row_end, seperator_col, Vertical, maze);
-//
-//		// breaking a random wall in the previous random line
-//		wall_to_break = getExclusiveRandom(row_start, row_end, 1);
-//		temp_maze[wall_to_break][seperator_col] = '0';
-//		//maze.openThePath(wall_to_break, seperator_col);
-//
-//		//Recursively 
-//		Divide(row_start, row_end, col_start, seperator_col, Horizonal, maze);
-//		system("cls");
-//		for (int i = 0; i < maze.getHeight(); i++)
-//		{
-//			for (int j = 0; j < maze.getWidth(); j++)
-//				std::cout << temp_maze[i][j];
-//			std::cout << std::endl;
-//		}
-//		std::cout << std::endl;
-//		//cout << maze;
-//		Divide(row_start, row_end, seperator_col, col_end, Horizonal, maze);
-//		system("cls");
-//		for (int i = 0; i < maze.getHeight(); i++)
-//		{
-//			for (int j = 0; j < maze.getWidth(); j++)
-//				std::cout << temp_maze[i][j];
-//			std::cout << std::endl;
-//		}
-//		std::cout << std::endl;
-//		//cout << maze;
-//	}
-//
-//	else // Horizonal Dividing ::
-//	{
-//		// creating an Horizonal line of walls at a random position 
-//		int seperator_row = getExclusiveRandom(row_start, row_end, 0);
-//		createWallsLine(col_start, col_end, seperator_row, Horizonal, maze);
-//
-//		// breaking a random wall
-//		wall_to_break = getExclusiveRandom(col_start, col_end, 1);
-//		temp_maze[seperator_row][wall_to_break] = '0';
-//		//maze.openThePath(seperator_row, wall_to_break);
-//
-//		//Recursively 
-//		Divide(row_start, seperator_row, col_start, col_end, Vertical, maze);
-//		system("cls");
-//		for(int i = 0 ; i < maze.getHeight() ; i++)
-//		{
-//			for (int j = 0; j < maze.getWidth(); j++)
-//				std::cout << temp_maze[i][j];
-//			std::cout << std::endl;
-//		}
-//		std::cout << std::endl;
-//		//cout << maze;
-//		Divide(seperator_row, row_end, col_start, col_end, Vertical, maze);
-//		system("cls");
-//		for (int i = 0; i < maze.getHeight(); i++)
-//		{
-//			for (int j = 0; j < maze.getWidth(); j++)
-//				std::cout << temp_maze[i][j];
-//			std::cout << std::endl;
-//		}
-//		std::cout << std::endl;
-//		//cout << maze;
-//	}
-//	return;
-//}
-//
-//
-//int SimpleMaze2dGenerator::getExclusiveRandom(const int& min, const int& max, const bool& restriction)
-//{
-//	//restriction = 0 : EVEN,	restriction = 1: ODD
-//
-//	int val = rand() % max;
-//	while (bool(val % 2) != restriction || val <= min)
-//		val = rand() % max;
-//	return val;
-//}
-//
-//
-//void SimpleMaze2dGenerator::createWallsLine(int itr, const int& end, const int& seperator, bool direction, Maze2D& maze)
-//{
-//	char** temp_maze = maze.getMaze();
-//	while (itr++ < end - 1)
-//		if (direction == Vertical)
-//			temp_maze[itr][seperator] = '1';
-//		else
-//			temp_maze[seperator][itr] = '1';
-//	maze.setMaze(temp_maze);
-//}
+bool Maze2D::isSolved()
+{
+	int counter = 0;
+
+	for (int i = 0; i < _height; i++)
+	{
+		for (int j = 0; j < _width; j++)
+		{
+			if (_maze[i][j] == '*')
+			{
+				counter++;
+				break;
+			}
+		}
+	}
+
+	if (counter > 0)
+		return true;
+
+	return false;
+}

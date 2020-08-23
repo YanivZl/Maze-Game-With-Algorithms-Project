@@ -15,7 +15,7 @@ public:
     {
         std::cout << mg.measureAlgorithmTime(200, 200) << std::endl;
         std::cout << std::endl;
-        Maze2D maze = mg.genarate(30, 30);
+        Maze2D maze = mg.generate(30, 30);
         Position p = maze.getStartPosition();
         std::cout << p << std::endl;
         std::cout << maze.getPossibleMoves(p) << std::endl;
@@ -26,6 +26,7 @@ public:
 
 int main()
 {
+    system("mode 650");
     //TestMazeGenarator t;
     //MyMaze2dGenerator mg;
     //t.testMazeGenarator(mg);

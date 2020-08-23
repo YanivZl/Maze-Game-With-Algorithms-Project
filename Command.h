@@ -28,7 +28,9 @@
 #include "Maze2d.h"
 #include <experimental/filesystem>
 #include <filesystem>
+#include <fstream>
 //#include "MazeCompressation.h"
+#include "MazeCompressor.h"
 #include "BFS.h"
 #include "MazeAdapter.h"
 #include "Astar2D.h"
@@ -36,6 +38,8 @@
 namespace fs = std::experimental::filesystem;
 static std::vector<std::pair<std::string, Maze2D >> Mymazes;
 typedef std::vector<Node<Position>*> Solution;
+static std::map<std::string , std::pair<Maze2D,Solution*>> Mazes;
+static std::map<Maze2D , Solution> cache;
 
 class Command {
 public:
@@ -50,15 +54,24 @@ public:
     dirCommand() {}
     int run(std::vector<std::string> args)
     {
-        const fs::path Path = args[1];
+        std::string str;
+        for (std::string s : args)
+        {
+            if (s == "dir")
+                continue;
+            str += s + " ";
+        }
+        str.pop_back();
+        const fs::path Path = str;
         for (auto itEntry = fs::recursive_directory_iterator(Path);
             itEntry != fs::recursive_directory_iterator();
             ++itEntry)
         {
             const auto filenameStr = itEntry->path().filename().string();
-            std::cout << std::setw(itEntry.depth() * 3) << "";
+            std::cout << std::setw((int)itEntry.depth() * (int)3) << "";
             std::cout << "dir:  " << filenameStr << '\n';
         }
+        std::cout << std::endl;
         return 1;
     }
 };
@@ -69,6 +82,11 @@ public:
     generateCommand() {}
     int run(std::vector<std::string> args)
     {
+        if (Mazes.find(args[1]) != Mazes.end())
+        {
+            std::cout << "The name '" + args[1] + "' is already taken." << std::endl;
+            return 1;
+        }
         Maze2D Maze;
         Maze2DGenerator* Gen;
         if (args[2] == "prim")
@@ -78,33 +96,32 @@ public:
         else
             return 1;
         Maze = Gen->generate(std::stoi(args[3]), std::stoi(args[4]));
-        std::cout << std::endl << Maze;
-        Mymazes.push_back(std::make_pair(args[1], Maze));
+        std::cout << "Maze '" + args[1] + "' is generated." << std::endl;
+        Mazes[args[1]] = std::make_pair(Maze , nullptr);
         Sleep(100);
         return 1;
     }
 };
 /*------------------------------------------------------------------------*/
+
 class displayCommand : public Command
 {
 public:
     displayCommand() {}
     int run(std::vector<std::string> args)
     {
-
-        for (std::vector<std::pair<std::string, Maze2D >>::const_iterator iter = Mymazes.begin(); iter != Mymazes.end(); iter++)
+        //bool exsist = false;
+        if(Mazes.find(args[1]) != Mazes.end()) // maze exsists in map.
         {
-            if (iter->first == args[1])
-            {
-                std::cout << BOLDYELLOW << "The Maze " << BOLDCYAN + args[1] + BOLDYELLOW << " Was Already Generated \n";
-                std::cout << "Here is your Maze: \n" << BOLDWHITE;
-                std::cout << iter->second;
-                break;
-            }
+            std::cout << "\nThe maze under name '" + args[1] + "':\n\n" << BOLDWHITE;
+            std::cout << Mazes[args[1]].first;
         }
+        else
+            std::cout << "\nMaze '" + args[1] + "' not exsist." << std::endl;
         return 1;
     }
 };
+
 /*------------------------------------------------------------------------*/
 class saveCommand : public Command
 {
@@ -112,28 +129,31 @@ public:
     saveCommand() {}
     int run(std::vector<std::string> args)
     {
-        /* Maze2D Maze;
-         std::string mazeName = args[1];
-         std::string fileName = args[2];
-         int answer = 0;
-         std::vector<std::pair<std::string, Maze2D >> mazes = Mymazes;
-         for (std::vector<std::pair<std::string, Maze2D >>::const_iterator iter = Mymazes.begin(); iter != Mymazes.end(); iter++)
+         Maze2D Maze;
+         if (Mazes.find(args[1]) != Mazes.end()) // maze exsists in map.
          {
-             if (iter->first == mazeName)
+             MazeCompressor compressor;
+             std::ofstream out_file;
+             out_file.open(args[2], std::ios::app);
+             if (!out_file.is_open())
              {
-                 Maze = iter->second;
-                 answer = 1;
+                 std::cout << "The file '" + args[2] + "' is not exsist.";
+                 return 1;
              }
+             std::string compressed_maze = compressor.Compress(Mazes[args[1]].first);
+             out_file << args[1] << "\n" << compressed_maze << "\nS ";
+             if (Mazes[args[1]].second != nullptr)
+             {
+                 for (auto s : *Mazes[args[1]].second)
+                     out_file << s ->getNode() << " ";
+             }
+             out_file << "\n";
+             out_file.close();
+             std::cout << "Maze '" + args[1] + "' saved succesfully to '" + args[2] +"'\n";
          }
-         if (answer == 0)
-         {
-             std::cout << BOLDRED << "The Maze " << BOLDCYAN << mazeName << BOLDRED << " Not exist" << BOLDWHITE << endl;
-             return 1;
-         }
-         MazeCompressaiton Save(mazeName, fileName, Maze);
-         Save.Compress();
-         return 1;*/
-        return 1;
+         else
+             std::cout << "Maze '" + args[1] + "' not exsist." << std::endl;
+         return 1;
     }
 };
 /*------------------------------------------------------------------------*/
@@ -143,60 +163,68 @@ public:
     loadCommand() {}
     int run(std::vector<std::string> args)
     {
-        /*Maze2 Maze;
-        std::string mazeName = args[2];
-        std::string fileName = args[1];
-        int answer = 0;
-        std::vector<std::pair<std::string, Maze2d >> mazes = Mymazes;
-        for (std::vector<std::pair<std::string, Maze2d >>::const_iterator iter = Mymazes.begin(); iter != Mymazes.end(); iter++)
+        std::ifstream in_file;
+        in_file.open(args[1]);
+        if (!in_file.is_open())
         {
-            if (iter->first == mazeName)
-            {
-                Maze = iter->second;
-                answer = 1;
-            }
-        }
-        if (answer == 0)
-        {
-            cout << BOLDRED << "The Maze " << BOLDCYAN << mazeName << BOLDRED << " Not exist" << BOLDWHITE << endl;
+            std::cout << "The file '" + args[1] + "' is not exsist.";
             return 1;
         }
-        MazeCompressaiton Load(mazeName, fileName, Maze);
-        Load.Expansion();*/
+        std::string line;
+        Maze2D maze;
+        MazeCompressor compressor;
+        while (!in_file.eof())
+        {
+            std::getline(in_file , line);
+            if (!line.compare(args[2]))
+            {
+                std::getline(in_file, line);
+                maze = compressor.Depress(line);
+                std::getline(in_file, line);
+                if (line.compare("S "))
+                    Mazes[args[2]] = std::make_pair(maze, nullptr);
+                else
+                {
+                    Solution* s = new Solution;
+                    while (!line.empty())
+                    {
+                        std::string temp = line.substr(0, line.find(" "));
+                        int x = std::atoi(line.substr(line.find("(") + 1, line.find(",") - 1).c_str());
+                        int y = std::atoi(line.substr(line.find(",") + 1, line.find(")") - line.find(",") - 1).c_str());
+                        s -> push_back(new Node<Position>(Position(x, y)));
+                        line = line.substr(line.find(" ") + 1, line.size() - line.find(" "));
+                    }
+                    Mazes[args[2]] = std::make_pair(maze, s);
+                }
+                std::cout << "Maze '" + args[2] + "' loaded succesfully from '" + args[1] + "'\n";
+                return 1;
+            }
+        }
         return 1;
     }
 };
 /*------------------------------------------------------------------------*/
+
 class sizeCommand : public Command
 {
 public:
     sizeCommand() {}
     int run(std::vector<std::string> args)
     {
-        //Maze2d Maze;
-        //std::string mazeName = args[2];
-        //std::string fileName = args[1];
-        //int answer = 0;
+        if (Mazes.find(args[1]) != Mazes.end()) // maze exsists in map.
+        {
+            //std::cout << Mazes[args[1]].first;
+            //int mazeSize = std::typeof;x
+            int mazeWidth = Mazes[args[1]].first.getWidth();
+            int mazehight = Mazes[args[1]].first.getHeight();
+            auto temp = Mazes[args[1]].first.getMaze();
+            int sizeCell = sizeof(temp[0][0]);
+            int totalSize = mazehight * mazeWidth * sizeCell;
+            std::cout << "The maze takes " << BOLDCYAN << totalSize << BOLDWHITE << " bits of the memory" << std::endl;
+        }
+        else
+            std::cout << "Maze '" + args[1] + "' not exsist." << std::endl;
 
-        //std::vector<std::pair<std::string, Maze2d >> mazes = Mymazes;
-        //for (std::vector<std::pair<std::string, Maze2d >>::const_iterator iter = Mymazes.begin(); iter != Mymazes.end(); iter++)
-        //{
-        //    if (iter->first == mazeName)
-        //    {
-        //        Maze = iter->second;
-        //        answer = 1;
-        //    }
-        //}
-        //if (answer == 0)
-        //{
-        //    cout << BOLDRED << "The Maze " << BOLDCYAN << mazeName << BOLDRED << " Not exist" << BOLDWHITE << endl;
-        //    return 1;
-        //}
-        //else
-        //{
-        //    MazeCompressaiton Size(mazeName, fileName, Maze);
-        //    Size.getExpansionSize();
-        //}
         return 1;
     }
 };
@@ -232,52 +260,44 @@ public:
     }
 };
 /*------------------------------------------------------------------------*/
+
 class solveCommand : public Command
 {
 public:
     solveCommand() {}
     int run(std::vector<std::string> args)
     {
-        if (args[2] == "bfs" || args[2] == "BFS")
+
+        if (Mazes.find(args[1]) != Mazes.end()) // maze exsists in map.
         {
-            for (std::vector<std::pair<std::string, Maze2D >>::const_iterator iter = Mymazes.begin(); iter != Mymazes.end(); iter++)
+            MazeAdapter adapter;
+            Searchable<Position>* searchable_maze = adapter.getSearchableMaze(Mazes[args[1]].first);
+            Solution* s = new std::vector<Node<Position>*>;
+            if (args[2] == "bfs" || args[2] == "BFS")
             {
-                if (iter->first == args[1])
-                {
-                    MazeAdapter adapter;
-                    Searchable<Position>* searchable_maze = adapter.getSearchableMaze(iter->second);
-                    BFS<Position> bfs;
-                    Solution s = bfs.search(searchable_maze);
-                    Maze2D temp_maze = iter->second;
-                    adapter.insertSolutionToMaze(temp_maze, s);
-
-                    std::cout << "Done bfs on the maze " << BOLDCYAN + args[1] << BOLDWHITE << std::endl;
-                }
+                BFS<Position> bfs;
+                *s = bfs.search(searchable_maze);
+                Mazes[args[1]].second = s;
+                std::cout << "Done bfs on the maze " << BOLDCYAN + args[1] << BOLDWHITE << std::endl;
+                
             }
-        }
-        else if (args[2] == "astar" || args[2] == "Astar" || args[2] == "a*" || args[2] == "A*")
-        {
-            for (std::vector<std::pair<std::string, Maze2D >>::const_iterator iter = Mymazes.begin(); iter != Mymazes.end(); iter++)
+            else if (args[2] == "astar" || args[2] == "Astar" || args[2] == "a*" || args[2] == "A*")
             {
-                if (iter->first == args[1])
-                {
-                    MazeAdapter adapter;
-                    Searchable<Position>* searchable_maze = adapter.getSearchableMaze(iter->second);
-                    AStar2D<Position> a;
-                    Solution s = a.search(searchable_maze, MANHATTAN_DISTANCE);
-                    Maze2D temp_maze = iter->second;
-                    adapter.insertSolutionToMaze(temp_maze, s);
-
-                    std::cout << "Done A* on the maze " << BOLDCYAN + args[1] << BOLDWHITE << std::endl;
-                }
+                AStar2D<Position> a;
+                *s = a.search(searchable_maze);
+                Mazes[args[1]].second = s;
+                std::cout << "Done A* on the maze " << BOLDCYAN + args[1] << BOLDWHITE << std::endl;
             }
+            else
+                std::cout << "algorithm unknown.";
         }
-
-        //std::cout << "Fuck all bitches! - sizeCommand - solveCommand" << std::endl;
+        else
+            std::cout << "Maze '" + args[1] + "' not exsist.";
         return 1;
+
     }
-private:
 };
+
 /*------------------------------------------------------------------------*/
 class solutionCommand : public Command
 {
@@ -285,18 +305,22 @@ public:
     solutionCommand() {}
     int run(std::vector<std::string> args)
     {
-        for (std::vector<std::pair<std::string, Maze2D >>::const_iterator iter = Mymazes.begin(); iter != Mymazes.end(); iter++)
+        if (Mazes.find(args[1]) != Mazes.end()) // maze exsists in map.
         {
-            if (iter->first == args[1])
+            if(Mazes[args[1]].second != nullptr)
             {
-                iter->second.printMaze();
+                MazeAdapter adapter;
+                Maze2D temp_maze = Mazes[args[1]].first;
+                adapter.insertSolutionToMaze(temp_maze, *Mazes[args[1]].second);
+                std::cout << "Maze '" + args[1] + "' solution:\n" << temp_maze;
             }
+            else
+                std::cout << "Maze '" + args[1] + "' not solved yet.\n";
         }
-
-        //std::cout << "Fuck all bitches! - solutionCommand" << std::endl;
+        else
+            std::cout << "Maze '" + args[1] + "' not exsist.";
         return 1;
     }
-private:
 };
 /*------------------------------------------------------------------------*/
 class exitCommand : public Command

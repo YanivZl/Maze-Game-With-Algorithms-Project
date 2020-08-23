@@ -9,7 +9,7 @@ void Demo::run()
 {
 	MazeAdapter adapter;
 	MyMaze2dGenerator generator;
-	Maze2D maze = generator.genarate(20	, 20);
+	Maze2D maze = generator.generate(20	, 20);
 	maze.printMaze();
 	Searchable<Position>* searchable_maze = adapter.getSearchableMaze(maze);
 	BFS<Position> bfs;

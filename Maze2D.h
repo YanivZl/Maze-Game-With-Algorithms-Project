@@ -19,6 +19,7 @@ class Maze2D
 public:
 	Maze2D() : _maze(nullptr), _width(NULL) , _height(NULL) {};
 	Maze2D(int row, int column);
+	Maze2D(const Maze2D& maze);
 	int getWidth() const { return _width; };
 	int getHeight() const { return _height; };
 	char** getMaze() const { return _maze; };
@@ -28,6 +29,8 @@ public:
 	Position getStartPosition() const;
 	std::string getPossibleMoves(const Position& p) const;
 	Position getGoalPosition();
+	void printEmptyMaze(const Maze2D& maze) const;
+	bool isSolved();
 };
 
 class Maze2DGenerator
