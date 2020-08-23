@@ -181,7 +181,7 @@ public:
                 std::getline(in_file, line);
                 maze = compressor.Depress(line);
                 std::getline(in_file, line);
-                if (line.compare("S "))
+                if (!line.compare("S "))
                     Mazes[args[2]] = std::make_pair(maze, nullptr);
                 else
                 {
@@ -283,16 +283,30 @@ public:
             }
             else if (args[2] == "astar" || args[2] == "Astar" || args[2] == "a*" || args[2] == "A*")
             {
+                std::cout << "By Air distance or Manhattan distance?\n";
+                std::string input;
+                std::cin >> input;
                 AStar2D<Position> a;
-                *s = a.search(searchable_maze);
-                Mazes[args[1]].second = s;
-                std::cout << "Done A* on the maze " << BOLDCYAN + args[1] << BOLDWHITE << std::endl;
+                if (input == "Air distance" || input == "air distance" || input == "Air" || input == "air")
+                {
+                    *s = a.search(searchable_maze, AIR_DISTANCE);
+                    Mazes[args[1]].second = s;
+                    std::cout << "Done A* on the maze " << BOLDCYAN + args[1] << BOLDWHITE << std::endl;
+                }
+                else if (input == "Manhattan distance" || input == "manhattan distance" || input == "Manhattan" || input == "manhattan")
+                {
+                    *s = a.search(searchable_maze, MANHATTAN_DISTANCE);
+                    Mazes[args[1]].second = s;
+                    std::cout << "Done A* on the maze " << BOLDCYAN + args[1] << BOLDWHITE << std::endl;
+                }
+                else
+                    std::cout << "Unknown function.\n";
             }
             else
                 std::cout << "algorithm unknown.";
         }
         else
-            std::cout << "Maze '" + args[1] + "' not exsist.";
+            std::cout << "Maze '" + args[1] + "' not exsist.\n";
         return 1;
 
     }
